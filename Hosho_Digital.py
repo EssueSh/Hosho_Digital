@@ -7,25 +7,23 @@ import mysql.connector
 import streamlit as st
 import pandas as pd
 
-
 def get_db_connection():
     try:
         mydb = mysql.connector.connect(
             host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
             user="2togiDCHrG3RFGf.root",
-            password="AYWo3q3v5GETpFrR",  # Update with your MySQL password
-            database="hosho_digital_contract_manager_database"  
+            password="AYWo3q3v5GETpFrR",
+            database="hosho_digital_contract_manager_database"
         )
         return mydb
     except mysql.connector.Error as err:
         st.error(f"Error: {err}")
         return None
 
-
 def contract_manager_page():
     st.title("Contract Manager Dashboard")
     st.subheader("Manage Templates and Contract Lifecycle")
-    menu = ["View Templates", "Add Template", "Track Contract Status"]
+    menu = ["View Templates", "Add Template", "Track Contract Status", "Set Renewal Notifications", "Version Control"]
     choice = st.selectbox("Choose Action", menu)
 
     if choice == "View Templates":
@@ -54,19 +52,8 @@ def contract_manager_page():
                 values = (template_name, description, created_by)
                 try:
                     mycursor.execute(query, values)
-                    mydb.commit()  # Commit the changes
+                    mydb.commit()
                     st.success("Template added successfully!")
-
-                    # Re-establish connection and refresh data
-                    mydb = get_db_connection()
-                    mycursor = mydb.cursor()
-                    mycursor.execute("SELECT * FROM templates")
-                    result = mycursor.fetchall()
-                    mydb.close()
-                    if result:
-                        data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                        st.dataframe(data)
-
                 except mysql.connector.Error as err:
                     st.error(f"Error adding template: {err}")
                 finally:
@@ -85,10 +72,16 @@ def contract_manager_page():
             else:
                 st.warning("No contracts found.")
 
+    elif choice == "Set Renewal Notifications":
+        st.info("Feature under development")
+
+    elif choice == "Version Control":
+        st.info("Feature under development")
+
 def sales_rep_page():
     st.title("Sales Representative Dashboard")
     st.subheader("Manage Contracts and Track Revenue")
-    menu = ["View Contracts", "Add Contract", "Track Revenue"]
+    menu = ["View Contracts", "Add Contract", "Track Revenue", "Notifications"]
     choice = st.selectbox("Choose Action", menu)
 
     if choice == "View Contracts":
@@ -119,19 +112,8 @@ def sales_rep_page():
                 values = (template_id, created_by, assigned_to, start_date, end_date)
                 try:
                     mycursor.execute(query, values)
-                    mydb.commit()  # Commit the changes
+                    mydb.commit()
                     st.success("Contract added successfully!")
-
-                    # Re-establish connection and refresh data
-                    mydb = get_db_connection()
-                    mycursor = mydb.cursor()
-                    mycursor.execute("SELECT * FROM contracts")
-                    result = mycursor.fetchall()
-                    mydb.close()
-                    if result:
-                        data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                        st.dataframe(data)
-
                 except mysql.connector.Error as err:
                     st.error(f"Error adding contract: {err}")
                 finally:
@@ -144,6 +126,29 @@ def sales_rep_page():
             # Implement revenue tracking logic here
             mydb.close()
 
+    elif choice == "Notifications":
+        st.info("Feature under development")
+
+# Define additional role-specific pages
+def legal_team_page():
+    st.title("Legal Team Dashboard")
+    st.subheader("Manage Legal Compliance and Risks")
+    st.info("Features coming soon: Clause Library, Risk Assessments, and Negotiation Tracking")
+
+def finance_team_page():
+    st.title("Finance Team Dashboard")
+    st.subheader("Track Financial Obligations and Generate Reports")
+    st.info("Features coming soon: Financial Reports and Invoicing Automation")
+
+def account_manager_page():
+    st.title("Account Manager Dashboard")
+    st.subheader("Monitor Performance Metrics and Customer Relationships")
+    st.info("Features coming soon: Contract History and Upsell Opportunities")
+
+def contract_analyst_page():
+    st.title("Contract Analyst Dashboard")
+    st.subheader("Analyze Contract Performance and Generate Reports")
+    st.info("Features coming soon: Custom Reporting and KPI Tracking")
 
 st.title("HOSHŌ Digital Contract Management System")
 st.subheader("Select Your Role to Proceed")
@@ -164,6 +169,12 @@ elif role == "Sales Representative":
     sales_rep_page()
 elif role == "Legal Team":
     legal_team_page()
+elif role == "Finance Team":
+    finance_team_page()
+elif role == "Account Manager":
+    account_manager_page()
+elif role == "Contract Analyst":
+    contract_analyst_page()
 else:
     st.warning("This role is under development.")
 
