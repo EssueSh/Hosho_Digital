@@ -11,11 +11,11 @@ def get_db_connection():
     try:
         mydb = mysql.connector.connect(
             host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-            port=4000
+            port=4000,  # Ensure the correct port is specified
             user="2togiDCHrG3RFGf.root",
             password="1nWRCnwmEh6mV0XL",
-            database="test"
-            CA=""
+            database="test",
+            ssl_ca="isrgrootx1.pem"  # Correct parameter name
         )
         return mydb
     except mysql.connector.Error as err:
