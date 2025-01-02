@@ -11,7 +11,7 @@ import pandas as pd
 def get_db_connection():
     try:
         mydb = mysql.connector.connect(
-            host="localhost",
+            host="127.0.0.1",
             user="root",
             password="Ishant@123",  # Update with your MySQL password
             database="hosho_digital_contract_manager_database"  
