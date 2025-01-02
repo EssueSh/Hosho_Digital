@@ -1,4 +1,3 @@
-os
 subprocess
 IPython
 mysql.connector
