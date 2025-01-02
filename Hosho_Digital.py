@@ -14,7 +14,7 @@ def get_db_connection():
             port=4000,  # Ensure the correct port is specified
             user="2togiDCHrG3RFGf.root",
             password="1nWRCnwmEh6mV0XL",
-            database="test",
+            database="contract_management",
             ssl_ca="isrgrootx1.pem"  # Correct parameter name
         )
         return mydb
