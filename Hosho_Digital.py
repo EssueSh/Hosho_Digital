@@ -133,22 +133,118 @@ def sales_rep_page():
 def legal_team_page():
     st.title("Legal Team Dashboard")
     st.subheader("Manage Legal Compliance and Risks")
-    st.info("Features coming soon: Clause Library, Risk Assessments, and Negotiation Tracking")
+    menu = ["Review Modifications", "Access Clause Library", "Track Negotiations", "Risk Assessment"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Review Modifications":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM modifications WHERE status = 'Pending Review'")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No modifications pending review.")
+
+    elif choice == "Access Clause Library":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM clause_library")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("Clause library is empty.")
+
+    elif choice == "Track Negotiations":
+        st.info("Feature under development")
+
+    elif choice == "Risk Assessment":
+        st.info("Feature under development")
 
 def finance_team_page():
     st.title("Finance Team Dashboard")
     st.subheader("Track Financial Obligations and Generate Reports")
-    st.info("Features coming soon: Financial Reports and Invoicing Automation")
+    menu = ["Track Payments", "Generate Reports", "Link to Billing"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Track Payments":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT contract_id, payment_status FROM payments")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No payment data available.")
+
+    elif choice == "Generate Reports":
+        st.info("Feature under development")
+
+    elif choice == "Link to Billing":
+        st.info("Feature under development")
 
 def account_manager_page():
     st.title("Account Manager Dashboard")
     st.subheader("Monitor Performance Metrics and Customer Relationships")
-    st.info("Features coming soon: Contract History and Upsell Opportunities")
+    menu = ["View Contract History", "Track Deliverables", "Identify Upsell Opportunities"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "View Contract History":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM contract_history")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No contract history available.")
+
+    elif choice == "Track Deliverables":
+        st.info("Feature under development")
+
+    elif choice == "Identify Upsell Opportunities":
+        st.info("Feature under development")
 
 def contract_analyst_page():
     st.title("Contract Analyst Dashboard")
     st.subheader("Analyze Contract Performance and Generate Reports")
-    st.info("Features coming soon: Custom Reporting and KPI Tracking")
+    menu = ["Generate Performance Reports", "Analyze Pricing", "Track KPIs", "Create Custom Reports"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Generate Performance Reports":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM performance_reports")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No performance reports available.")
+
+    elif choice == "Analyze Pricing":
+        st.info("Feature under development")
+
+    elif choice == "Track KPIs":
+        st.info("Feature under development")
+
+    elif choice == "Create Custom Reports":
+        st.info("Feature under development")
 
 st.title("HOSHŌ Digital Contract Management System")
 st.subheader("Select Your Role to Proceed")
@@ -177,8 +273,6 @@ elif role == "Contract Analyst":
     contract_analyst_page()
 else:
     st.warning("This role is under development.")
-
-# In[ ]:
 
 
 
