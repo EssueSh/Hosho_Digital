@@ -3,11 +3,6 @@
 
 # In[18]:
 
-
-streamlit_code = """
-import os
-import subprocess
-from IPython.display import display, IFrame
 import mysql.connector
 import streamlit as st
 import pandas as pd
@@ -171,14 +166,6 @@ elif role == "Legal Team":
     legal_team_page()
 else:
     st.warning("This role is under development.")
-
-"""
-with open("app.py", "w", encoding="utf-8") as file:
-    file.write(streamlit_code)
-process = subprocess.Popen(["streamlit", "run", "app.py"])
-iframe = IFrame(src="http://localhost:8501", width="100%", height="600px")
-display(iframe)
-
 
 # In[ ]:
 
