@@ -173,14 +173,19 @@ def account_manager_page():
         mydb = get_db_connection()
         if mydb:
             mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM contract_history")
-            result = mycursor.fetchall()
-            mydb.close()
-            if result:
-                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                st.dataframe(data)
-            else:
-                st.warning("No contract history available.")
+            try:
+                mycursor.execute("SELECT * FROM contract_history")
+                result = mycursor.fetchall()
+                if result:
+                    columns = [desc[0] for desc in mycursor.description]
+                    data = pd.DataFrame(result, columns=columns)
+                    st.dataframe(data)
+                else:
+                    st.warning("No contract history available.")
+            except mysql.connector.Error as err:
+                st.error(f"Error fetching contract history: {err}")
+            finally:
+                mydb.close()
 
     elif choice == "Track Deliverables":
         st.info("Feature under development")
