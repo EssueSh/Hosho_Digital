@@ -218,6 +218,39 @@ def account_manager_page():
 
     elif choice == "Identify Upsell Opportunities":
         st.info("Feature under development")
+def add_user_page():
+    st.title("Add New User")
+    st.subheader("Add a New User to the System")
+
+    # Input fields for user details
+    user_name = st.text_input("User Name")
+    user_email = st.text_input("User Email")
+    role = st.selectbox("Select Role", ["Contract Manager", "Sales Representative", "Legal Team", "Finance Team", "Account Manager", "Contract Analyst"])
+
+    if st.button("Add User"):
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+
+            # Check if email already exists
+            mycursor.execute("SELECT COUNT(*) FROM users WHERE user_email = %s", (user_email,))
+            result = mycursor.fetchone()
+            if result[0] > 0:
+                st.error("This email is already registered. Please use a different email.")
+                return
+
+            # Insert new user
+            query = "INSERT INTO users (user_name, user_email, role) VALUES (%s, %s, %s)"
+            values = (user_name, user_email, role)
+            try:
+                mycursor.execute(query, values)
+                mydb.commit()
+                st.success("User added successfully!")
+            except mysql.connector.Error as err:
+                st.error(f"Error adding user: {err}")
+            finally:
+                mydb.close()
+
 
 def contract_analyst_page():
     st.title("Contract Analyst Dashboard")
@@ -259,6 +292,17 @@ roles = [
     "Contract Analyst",
 ]
 role = st.selectbox("Choose Your Role", roles)
+roles = [
+    "Contract Manager",
+    "Sales Representative",
+    "Legal Team",
+    "Finance Team",
+    "Account Manager",
+    "Contract Analyst",
+    "Admin Panel"  # New Admin Panel option
+]
+
+role = st.selectbox("Choose Your Role", roles)
 
 if role == "Contract Manager":
     contract_manager_page()
@@ -272,6 +316,8 @@ elif role == "Account Manager":
     account_manager_page()
 elif role == "Contract Analyst":
     contract_analyst_page()
+elif role == "Admin Panel":
+    add_user_page()
 else:
     st.warning("This role is under development.")
 
