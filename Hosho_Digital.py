@@ -187,6 +187,184 @@ def account_manager_page():
 
     elif choice == "Identify Upsell Opportunities":
         st.info("Feature under development")
+def legal_team_page():
+    st.title("Legal Team Dashboard")
+    st.subheader("Review Contracts and Manage Clause Library")
+    
+    menu = ["Review Contracts", "View Legal Reviews", "Clause Library"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Review Contracts":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM contracts WHERE status = 'Draft'")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No contracts to review.")
+
+        contract_id = st.number_input("Enter Contract ID for Review", min_value=1)
+        review_notes = st.text_area("Enter Review Notes")
+        compliance_status = st.selectbox("Compliance Status", ["Compliant", "Non-Compliant"])
+
+        if st.button("Submit Review"):
+            mydb = get_db_connection()
+            if mydb:
+                mycursor = mydb.cursor()
+                query = """
+                    INSERT INTO legal_reviews (contract_id, legal_team_member_id, review_notes, compliance_status)
+                    VALUES (%s, %s, %s, %s)
+                """
+                values = (contract_id, 1, review_notes, compliance_status)  # Assuming '1' is the logged-in legal team member ID
+                try:
+                    mycursor.execute(query, values)
+                    mydb.commit()
+                    st.success("Review submitted successfully!")
+                except mysql.connector.Error as err:
+                    st.error(f"Error submitting review: {err}")
+                finally:
+                    mydb.close()
+
+    elif choice == "View Legal Reviews":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM legal_reviews")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No legal reviews found.")
+
+    elif choice == "Clause Library":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM clause_library")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No clauses found.")
+
+        clause_text = st.text_area("Add New Clause Text")
+        category = st.text_input("Category")
+
+        if st.button("Add Clause"):
+            mydb = get_db_connection()
+            if mydb:
+                mycursor = mydb.cursor()
+                query = """
+                    INSERT INTO clause_library (clause_text, category, created_by)
+                    VALUES (%s, %s, %s)
+                """
+                values = (clause_text, category, 1)  # Assuming '1' is the logged-in user ID
+                try:
+                    mycursor.execute(query, values)
+                    mydb.commit()
+                    st.success("Clause added to library!")
+                except mysql.connector.Error as err:
+                    st.error(f"Error adding clause: {err}")
+                finally:
+                    mydb.close()
+def finance_team_page():
+    st.title("Finance Team Dashboard")
+    st.subheader("Track Contract Financials")
+
+    menu = ["Track Contract Payments", "View Financial Reports"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Track Contract Payments":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM finance_team_data")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No financial records found.")
+
+        contract_id = st.number_input("Enter Contract ID", min_value=1)
+        total_value = st.number_input("Contract Total Value", min_value=0.0, step=0.01)
+        payment_terms = st.text_area("Payment Terms")
+        billing_status = st.selectbox("Billing Status", ["Pending", "Paid", "Overdue"])
+
+        if st.button("Submit Payment Information"):
+            mydb = get_db_connection()
+            if mydb:
+                mycursor = mydb.cursor()
+                query = """
+                    INSERT INTO finance_team_data (contract_id, total_value, payment_terms, billing_status)
+                    VALUES (%s, %s, %s, %s)
+                """
+                values = (contract_id, total_value, payment_terms, billing_status)
+                try:
+                    mycursor.execute(query, values)
+                    mydb.commit()
+                    st.success("Payment information submitted successfully!")
+                except mysql.connector.Error as err:
+                    st.error(f"Error submitting payment info: {err}")
+                finally:
+                    mydb.close()
+
+    elif choice == "View Financial Reports":
+        st.info("Feature under development")
+def contract_analyst_page():
+    st.title("Contract Analyst Dashboard")
+    st.subheader("Analyze Contract Performance")
+
+    menu = ["Track KPIs", "Generate Custom Reports"]
+    choice = st.selectbox("Choose Action", menu)
+
+    if choice == "Track KPIs":
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM contract_analytics")
+            result = mycursor.fetchall()
+            mydb.close()
+            if result:
+                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
+                st.dataframe(data)
+            else:
+                st.warning("No KPI records found.")
+
+        contract_id = st.number_input("Enter Contract ID", min_value=1)
+        kpi_name = st.text_input("Enter KPI Name")
+        kpi_value = st.number_input("Enter KPI Value", min_value=0.0, step=0.01)
+        analysis_notes = st.text_area("Analysis Notes")
+
+        if st.button("Log KPI"):
+            mydb = get_db_connection()
+            if mydb:
+                mycursor = mydb.cursor()
+                query = """
+                    INSERT INTO contract_analytics (contract_id, analyst_id, kpi_name, kpi_value, analysis_notes)
+                    VALUES (%s, %s, %s, %s, %s)
+                """
+                values = (contract_id, 1, kpi_name, kpi_value, analysis_notes)  # Assuming '1' is the logged-in analyst ID
+                try:
+                    mycursor.execute(query, values)
+                    mydb.commit()
+                    st.success("KPI recorded successfully!")
+                except mysql.connector.Error as err:
+                    st.error(f"Error recording KPI: {err}")
+                finally:
+                    mydb.close()
+
+    elif choice == "Generate Custom Reports":
+        st.info("Feature under development")
 
 def contract_manager_actions_page():
     st.title("Contract Manager Actions")
