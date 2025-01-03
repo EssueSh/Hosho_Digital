@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[18]:
-
 import mysql.connector
 import streamlit as st
 import pandas as pd
@@ -104,13 +99,14 @@ def sales_rep_page():
         assigned_to = st.number_input("Assigned To (User ID)", min_value=1, step=1)
         start_date = st.date_input("Start Date")
         end_date = st.date_input("End Date")
+        renewal_date = st.date_input("Renewal Date")
 
         if st.button("Add Contract"):
             mydb = get_db_connection()
             if mydb:
                 mycursor = mydb.cursor()
-                query = "INSERT INTO contracts (template_id, created_by, assigned_to, start_date, end_date) VALUES (%s, %s, %s, %s, %s)"
-                values = (template_id, created_by, assigned_to, start_date, end_date)
+                query = "INSERT INTO contracts (template_id, created_by, assigned_to, start_date, end_date, renewal_date) VALUES (%s, %s, %s, %s, %s, %s)"
+                values = (template_id, created_by, assigned_to, start_date, end_date, renewal_date)
                 try:
                     mycursor.execute(query, values)
                     mydb.commit()
@@ -128,70 +124,6 @@ def sales_rep_page():
             mydb.close()
 
     elif choice == "Notifications":
-        st.info("Feature under development")
-
-# Define additional role-specific pages
-def legal_team_page():
-    st.title("Legal Team Dashboard")
-    st.subheader("Manage Legal Compliance and Risks")
-    menu = ["Review Modifications", "Access Clause Library", "Track Negotiations", "Risk Assessment"]
-    choice = st.selectbox("Choose Action", menu)
-
-    if choice == "Review Modifications":
-        mydb = get_db_connection()
-        if mydb:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM modifications WHERE status = 'Pending Review'")
-            result = mycursor.fetchall()
-            mydb.close()
-            if result:
-                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                st.dataframe(data)
-            else:
-                st.warning("No modifications pending review.")
-
-    elif choice == "Access Clause Library":
-        mydb = get_db_connection()
-        if mydb:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM clause_library")
-            result = mycursor.fetchall()
-            mydb.close()
-            if result:
-                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                st.dataframe(data)
-            else:
-                st.warning("Clause library is empty.")
-
-    elif choice == "Track Negotiations":
-        st.info("Feature under development")
-
-    elif choice == "Risk Assessment":
-        st.info("Feature under development")
-
-def finance_team_page():
-    st.title("Finance Team Dashboard")
-    st.subheader("Track Financial Obligations and Generate Reports")
-    menu = ["Track Payments", "Generate Reports", "Link to Billing"]
-    choice = st.selectbox("Choose Action", menu)
-
-    if choice == "Track Payments":
-        mydb = get_db_connection()
-        if mydb:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT contract_id, payment_status FROM payments")
-            result = mycursor.fetchall()
-            mydb.close()
-            if result:
-                data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
-                st.dataframe(data)
-            else:
-                st.warning("No payment data available.")
-
-    elif choice == "Generate Reports":
-        st.info("Feature under development")
-
-    elif choice == "Link to Billing":
         st.info("Feature under development")
 
 def account_manager_page():
@@ -218,67 +150,48 @@ def account_manager_page():
 
     elif choice == "Identify Upsell Opportunities":
         st.info("Feature under development")
-def add_user_page():
-    st.title("Add New User")
-    st.subheader("Add a New User to the System")
 
-    # Input fields for user details
-    user_name = st.text_input("User Name")
-    user_email = st.text_input("User Email")
-    role = st.selectbox("Select Role", ["Contract Manager", "Sales Representative", "Legal Team", "Finance Team", "Account Manager", "Contract Analyst"])
-
-    if st.button("Add User"):
-        mydb = get_db_connection()
-        if mydb:
-            mycursor = mydb.cursor()
-
-            # Check if email already exists
-            mycursor.execute("SELECT COUNT(*) FROM users WHERE user_email = %s", (user_email,))
-            result = mycursor.fetchone()
-            if result[0] > 0:
-                st.error("This email is already registered. Please use a different email.")
-                return
-
-            # Insert new user
-            query = "INSERT INTO users (user_name, user_email, role) VALUES (%s, %s, %s)"
-            values = (user_name, user_email, role)
-            try:
-                mycursor.execute(query, values)
-                mydb.commit()
-                st.success("User added successfully!")
-            except mysql.connector.Error as err:
-                st.error(f"Error adding user: {err}")
-            finally:
-                mydb.close()
-
-
-def contract_analyst_page():
-    st.title("Contract Analyst Dashboard")
-    st.subheader("Analyze Contract Performance and Generate Reports")
-    menu = ["Generate Performance Reports", "Analyze Pricing", "Track KPIs", "Create Custom Reports"]
+def contract_manager_actions_page():
+    st.title("Contract Manager Actions")
+    st.subheader("Track Actions Taken on Contracts")
+    menu = ["View Actions", "Log New Action"]
     choice = st.selectbox("Choose Action", menu)
 
-    if choice == "Generate Performance Reports":
+    if choice == "View Actions":
         mydb = get_db_connection()
         if mydb:
             mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM performance_reports")
+            mycursor.execute("SELECT * FROM contract_manager_actions")
             result = mycursor.fetchall()
             mydb.close()
             if result:
                 data = pd.DataFrame(result, columns=[desc[0] for desc in mycursor.description])
                 st.dataframe(data)
             else:
-                st.warning("No performance reports available.")
+                st.warning("No actions found.")
 
-    elif choice == "Analyze Pricing":
-        st.info("Feature under development")
+    elif choice == "Log New Action":
+        contract_id = st.number_input("Contract ID", min_value=1, step=1)
+        action_type = st.selectbox("Action Type", ["Status Update", "Renewal", "Versioning"])
+        details = st.text_area("Action Details")
+        performed_by = st.number_input("Performed By (User ID)", min_value=1, step=1)
 
-    elif choice == "Track KPIs":
-        st.info("Feature under development")
+        if st.button("Log Action"):
+            mydb = get_db_connection()
+            if mydb:
+                mycursor = mydb.cursor()
+                query = "INSERT INTO contract_manager_actions (contract_id, action_type, details, performed_by) VALUES (%s, %s, %s, %s)"
+                values = (contract_id, action_type, details, performed_by)
+                try:
+                    mycursor.execute(query, values)
+                    mydb.commit()
+                    st.success("Action logged successfully!")
+                except mysql.connector.Error as err:
+                    st.error(f"Error logging action: {err}")
+                finally:
+                    mydb.close()
 
-    elif choice == "Create Custom Reports":
-        st.info("Feature under development")
+# Define other pages (Sales Representative, Legal Team, Finance Team, etc.) similarly
 
 st.title("HOSHŌ Digital Contract Management System")
 st.subheader("Select Your Role to Proceed")
@@ -286,41 +199,18 @@ st.subheader("Select Your Role to Proceed")
 roles = [
     "Contract Manager",
     "Sales Representative",
-    "Legal Team",
-    "Finance Team",
     "Account Manager",
-    "Contract Analyst",
+    "Contract Manager Actions",
 ]
-role = st.selectbox("Choose Your Role", roles)
-roles = [
-    "Contract Manager",
-    "Sales Representative",
-    "Legal Team",
-    "Finance Team",
-    "Account Manager",
-    "Contract Analyst",
-    "Admin Panel"  # New Admin Panel option
-]
-
 role = st.selectbox("Choose Your Role", roles)
 
 if role == "Contract Manager":
     contract_manager_page()
 elif role == "Sales Representative":
     sales_rep_page()
-elif role == "Legal Team":
-    legal_team_page()
-elif role == "Finance Team":
-    finance_team_page()
 elif role == "Account Manager":
     account_manager_page()
-elif role == "Contract Analyst":
-    contract_analyst_page()
-elif role == "Admin Panel":
-    add_user_page()
+elif role == "Contract Manager Actions":
+    contract_manager_actions_page()
 else:
     st.warning("This role is under development.")
-
-
-
-
