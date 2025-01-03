@@ -10,12 +10,11 @@ import pandas as pd
 def get_db_connection():
     try:
         mydb = mysql.connector.connect(
-            host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-            port=4000,  # Ensure the correct port is specified
-            user="2togiDCHrG3RFGf.root",
-            password="1nWRCnwmEh6mV0XL",
-            database="contract_management",
-            ssl_ca="isrgrootx1.pem"  # Correct parameter name
+            host="sql12.freesqldatabase.com",
+            port=3306,  # Port number for MySQL
+            user="sql12755432",
+            password="qUtIGrBs3L",
+            database="sql12755432"
         )
         return mydb
     except mysql.connector.Error as err:
