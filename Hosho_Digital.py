@@ -15,6 +15,43 @@ def get_db_connection():
     except mysql.connector.Error as err:
         st.error(f"Error: {err}")
         return None
+def register_user():
+    st.title("Register New User")
+    
+    # Input fields for new user registration
+    username = st.text_input("Username")
+    email = st.text_input("Email")
+    
+    if st.button("Register"):
+        # Check if username and email are provided
+        if not username or not email:
+            st.error("Please provide both username and email.")
+            return
+        
+        # Insert user into the database
+        mydb = get_db_connection()
+        if mydb:
+            mycursor = mydb.cursor()
+            
+            # Ensure the username does not already exist
+            mycursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
+            username_exists = mycursor.fetchone()[0] > 0
+            if username_exists:
+                st.error("Username already exists. Please choose another one.")
+                return
+            
+            # Insert new user into the users table
+            query = "INSERT INTO users (username, email) VALUES (%s, %s)"
+            values = (username, email)
+            try:
+                mycursor.execute(query, values)
+                mydb.commit()
+                st.success(f"User '{username}' registered successfully!")
+            except mysql.connector.Error as err:
+                st.error(f"Error registering user: {err}")
+            finally:
+                mydb.close()
+
 
 def contract_manager_page():
     st.title("Contract Manager Dashboard")
@@ -194,23 +231,32 @@ def contract_manager_actions_page():
 # Define other pages (Sales Representative, Legal Team, Finance Team, etc.) similarly
 
 st.title("HOSHŌ Digital Contract Management System")
-st.subheader("Select Your Role to Proceed")
+st.subheader("Select Your Role to Proceed or Register")
 
-roles = [
+menu = [
     "Contract Manager",
     "Sales Representative",
+    "Legal Team",
+    "Finance Team",
     "Account Manager",
-    "Contract Manager Actions",
+    "Contract Analyst",
+    "Register New User"
 ]
-role = st.selectbox("Choose Your Role", roles)
+role = st.selectbox("Choose Your Role", menu)
 
 if role == "Contract Manager":
     contract_manager_page()
 elif role == "Sales Representative":
     sales_rep_page()
+elif role == "Legal Team":
+    legal_team_page()
+elif role == "Finance Team":
+    finance_team_page()
 elif role == "Account Manager":
     account_manager_page()
-elif role == "Contract Manager Actions":
-    contract_manager_actions_page()
+elif role == "Contract Analyst":
+    contract_analyst_page()
+elif role == "Register New User":
+    register_user()  # Register new user
 else:
     st.warning("This role is under development.")
